@@ -1,0 +1,8 @@
+[Unit]
+Description=Radio
+
+[Service]
+Type=simple
+Restart=always
+PrivateTmp=true
+ExecStart=/bin/bash /home/alarm/radioStart.sh

@@ -1,0 +1,1 @@
+sudo -u pulse /usr/bin/pacat -s /var/run/pulse/native -r -d bluez_source.F0_D1_A9_6B_AC_C2 --latency-msec=50 | sox -t raw -r 44100 -e signed-integer -b 16 -c 2 - -t wav - | sudo /home/alarm/PiFmRds/src/pi_fm_rds -audio - -freq 89.9 >> /var/log/bluetooth_dev

@@ -1,0 +1,88 @@
+#!/bin/bash
+
+# Installed at 
+AUDIOSINK="auto_null"
+ACTION=$(expr "$ACTION" : "\([a-zA-Z]\+\).*")
+echo "Executing bluetooth script...|$ACTION|" >> /var/log/bluetooth_dev
+if [ "$ACTION" = "add" ]
+then
+  # Turn off BT discover mode before connecting existing BT device to audio
+  hciconfig hci0 noscan
+  # Turn off BT auto connect if it is still running
+  sudo killall bluetooth-auto
+
+  # set the audio output to the hdmi
+  #amixer cset numid=3 2
+  # Set volume level to 100 percent
+  #amixer set Master 100%
+  # Set sink volume to 125%
+  #pacmd set-sink-volume 0 0x12500
+
+  for dev in $(find /sys/devices/virtual/input/ -name input*)
+    do
+	if [ -f "$dev/name" ]
+	then
+	
+	  mac=$(cat "$dev/name")
+	  # Add this mac address to list of trusted addresses
+	  TRUST=$(grep "$mac" /usr/lib/udev/bluetooth-trust)
+	  if [ -z "$TRUST" ]
+	  then
+		echo "Adding $mac to trusted addresses" >> /var/log/bluetooth_dev
+		echo $mac >> /usr/lib/udev/bluetooth-trust
+	  fi
+	  
+	  mac_underscore=$(cat "$dev/name" | sed 's/:/_/g')
+	  bluez_dev=bluez_source.$mac_underscore
+          #sudo -u alarm /usr/bin/pulseaudio --start |& tee /var/log/bluetooth_pa_err
+          #echo "pulse audio started" >> /var/log/bluetooth_dev	  
+	  # Set source volume to 125%
+	  #pacmd set-source-volume $bluez_dev 100%
+          whoami >> /var/log/bluetooth_dev
+	  sleep 1
+	  CONFIRM=`sudo -u pulse /usr/bin/pactl -s /var/run/pulse/native list short | grep $bluez_dev`
+	  #echo sudo -u alarm pactl -s /run/user/1000/pulse/native list short grep $bluez_dev >> /var/log/bluetooth_dev
+          sudo -u pulse /usr/bin/pactl -s /var/run/pulse/native list short |& tee /var/log/bluetooth_err
+          echo $CONFIRM >> /var/log/bluetooth_dev
+          #pactl list short >> /var/log/bluetooth_dev
+          sudo -u pulse /usr/bin/pactl -s /var/run/pulse/native load-module module-bluetooth-discover >> /var/log/bluetooth_dev
+          if [ ! -z "$CONFIRM" ]
+	  then
+		echo "Setting bluez_source to:  $bluez_dev" >> /var/log/bluetooth_dev
+		echo unloading loopback -- not pactl load-module module-loopback source=$bluez_dev sink=$AUDIOSINK rate=44100 adjust_time=0 >> /var/log/bluetooth_dev
+		sudo -u pulse /usr/bin/pactl -s /var/run/pulse/native unload-module module-loopback >> /var/log/bluetooth_dev
+		sudo -u pulse /usr/bin/pactl -s /var/run/pulse/native load-module module-loopback source=$bluez_dev sink=$AUDIOSINK rate=44100 adjust_time=0 >> /var/log/bluetooth_dev
+                sudo -u pulse /usr/bin/pactl -s /var/run/pulse/native unload-module module-suspend-on-idle >> /var/log/bluetooth_dev
+                echo "Killing any existing radio connections" >> /var/log/bluetooth_dev
+		sudo killall pifm_rds >> /var/log/bluetooth_dev
+		echo "Connecting bluetooth output to radio input, playing on 87.7" >> /var/log/bluetooth_dev
+		# Using $AUDIOSINK instead of 0 here doesn't seem to work, not sure why
+		echo pacat -s /var/run/pulse/native -r -d 0 --latency-msec=150 | sox -t raw -r 44100 -e signed-integer -b 16 -c 2 - -t wav - gain -l 10 | sudo /home/pi/fm/pifm - 87.9 44100 stereo & >> /var/log/bluetooth_dev
+		#sudo -u pulse /usr/bin/pacat -s /var/run/pulse/native -r -d $bluez_dev --latency-msec=50 | sox -t raw -r 44100 -e signed-integer -b 16 -c 2 - -t wav - | sudo /home/alarm/PiFmRds/src/pi_fm_rds -audio - -freq 89.9 >> /var/log/bluetooth_dev
+	        systemctl start radio
+          fi
+	fi
+  done
+fi
+
+if [ "$ACTION" = "remove" ]
+then
+  systemctl stop radio
+  # counter here since you have to connect - disconnect - and reconnect before it works again. then shutdown after second disconnect.
+  if [ ! -f "/tmp/mycount.dat" ] ; then
+    value=0
+  else
+    value=`cat /tmp/mycount.dat`
+  fi
+  value=`expr ${value} + 1`
+  echo "value: ${value}" >> /var/log/bluetooth_dev
+  echo "${value}" > /tmp/mycount.dat
+  if [ "$value" == "2" ] ; then
+    systemctl poweroff >> /var/log/bluetooth_dev
+    echo "off" >> /var/log/bluetooth_dev
+  fi
+  # Turn on bluetooth discovery if device disconnects
+  sudo hciconfig hci0 piscan
+  # Turn on bluetooth auto discovery
+  #sudo /usr/lib/udev/bluetooth-auto &
+fi
