@@ -63,3 +63,12 @@ To-do
 Contributing
 -----
 Please do.
+
+License
+-----
+
+Released under the MIT License with the exclusion of the ['bluetooth'](https://github.com/ndrewh/Raspberry-pi-fm-radio-bluetooth/blob/master/bluetooth) script which is released under [CC BY-NC-SA 2.5](http://creativecommons.org/licenses/by-nc-sa/2.5/) in accordance with "Share-Alike" clause of its source, the instructable referenced below.
+
+References
+-----
+- http://www.instructables.com/id/Raspberry-Pi-Wireless-Bluetooth-Audio-FM-Radio-Tra/?ALLSTEPS
