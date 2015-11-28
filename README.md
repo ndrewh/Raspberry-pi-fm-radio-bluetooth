@@ -59,3 +59,7 @@ To-do
 - [ ] Auto-connect
 - [ ] Don't hard code MAC in radioStart.sh
 - [ ] Don't use pulseaudio "system" mode since its use is discouraged
+
+Contributing
+-----
+Please do.
