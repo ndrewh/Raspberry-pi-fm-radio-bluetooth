@@ -3,6 +3,11 @@ Raspberry Pi FM Radio Transmitter
 
 Create your own rapsberry pi FM radio radio station (short range) streaming from your bluetooth device (ex. iPhone)
 
+Materials
+------
+
+- 70cm (optimally, ~20cm will do) or so plain wire connected to GPIO 4
+- Bluetooth dongle (doesn't have to be BTLE, just needs to support audio streaming)
 
 Setup
 -------
@@ -50,7 +55,7 @@ Open an issue and I'll see if maybe I left something out. Also see `journalctl` 
 To-do
 ----
 
-[ ] Don't require pairing manually at first
-[ ] Auto-connect
-[ ] Don't hard code MAC in radioStart.sh
-[ ] Don't use pulseaudio "system" mode since its use is discouraged
+- [ ] Don't require pairing manually at first
+- [ ] Auto-connect
+- [ ] Don't hard code MAC in radioStart.sh
+- [ ] Don't use pulseaudio "system" mode since its use is discouraged
