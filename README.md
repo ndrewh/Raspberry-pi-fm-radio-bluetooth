@@ -50,7 +50,7 @@ By default, this transmits on 89.9. This can be adjusted in radioStart.sh.
 Troubleshooting
 ----
 
-Open an issue and I'll see if maybe I left something out. Also see `journalctl` which acesses most of the logs for pulseaudio, bluez, etc.
+Open an issue and I'll see if maybe I left something out. Also see `journalctl` which acesses most of the logs for pulseaudio, bluez, etc. There is some other stuff logged to `/var/log/bluetooth_dev` and `/var/log/bluetooth_err` by the 'bluetooth' script but thats probably not helpful.
 
 To-do
 ----
